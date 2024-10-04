@@ -12,6 +12,7 @@ from airflow.providers.snowflake.operators.snowflake import SnowflakeSqlApiOpera
 from airflow.contrib.operators.snowflake_operator import SnowflakeOperator
 from airflow.models.baseoperator import chain
 from pendulum import datetime, duration
+from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 import os
 
 _SNOWFLAKE_CONN_ID = "snowflake_conn"
@@ -51,8 +52,8 @@ def my_snowflake_dag():
     # you can also execute multiple SQL statements using the SnowflakeSqlApiOperator
     # make sure to set the statement_count parameter to the number of statements in the SQL file
     # and that your connection details are in their proper capitalized form!
-    insert_data_multiple_statements = SnowflakeSqlApiOperator(
-        task_id="insert_data_multiple_statements",
+    multiple_statements = SnowflakeSqlApiOperator(
+        task_id="multiple_statements",
         snowflake_conn_id=_SNOWFLAKE_CONN_ID,
         sql="multiple_statements_query.sql",
         database=_SNOWFLAKE_DB,
@@ -69,6 +70,7 @@ def my_snowflake_dag():
     chain(
         select_data,
         snowflake_op_template_file,
+        multiple_statements
 
     )
 
