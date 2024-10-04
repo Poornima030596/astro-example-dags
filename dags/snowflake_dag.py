@@ -70,7 +70,7 @@ def my_snowflake_dag():
     chain(
         select_data,
         snowflake_op_template_file,
-        multiple_statements
+        multiple_statements,
 
     )
 
