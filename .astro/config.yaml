@@ -1,2 +1,7 @@
 project:
   name: astro-example-dags
+airflow:
+  logging:
+    remote_logging: true
+    remote_base_log_folder: "s3://aws-astro-edps-test/"
+    remote_log_conn_id: "aws_default"
