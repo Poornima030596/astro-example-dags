@@ -16,10 +16,15 @@ permissions:
 
 env:
   DEPLOYMENT_ID: "cm3mr96cq17pc01o6nchsxk3m"
+  AWS_REGION: "eu-west-1"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+
+jobs:
+    assume-role:
+    name: Assume Role 🗒️
+    runs-on:
+      group: elsevier-standard-runners
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -37,7 +42,8 @@ jobs:
         with:
           secret-ids: >
             DBT_CLOUD_TOKEN
-
+      build:
+        runs-on: ubuntu-latest
       - name: Deploy to Astro
         uses: astronomer/deploy-action@v0.4
         env:
