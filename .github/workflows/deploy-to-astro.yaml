@@ -1,4 +1,4 @@
-name: Astronomer CI - Deploy code
+name: Astronomer CI - Deploy Code
 
 on:
   workflow_dispatch:
@@ -7,21 +7,36 @@ on:
         description: "Deployment ID"
         required: true
         type: string
-      apiToken:
-        description: "Astro API Token"
-        required: true
-        type: string
   push:
     branches:
       - main
 
 env:
-  ASTRO_API_TOKEN: "eyJhbGciOiJSUzI1NiIsImtpZCI6ImNsb2Q0aGtqejAya3AwMWozdWNqbzJwOHIiLCJ0eXAiOiJKV1QifQ.eyJhcGlUb2tlbklkIjoiY20zbXJwcHp6MTc0ejAxcTc1dTlmcWhyaCIsImF1ZCI6ImFzdHJvbm9tZXItZWUiLCJpYXQiOjE3MzE5MTg3NjIsImlzQXN0cm9ub21lckdlbmVyYXRlZCI6dHJ1ZSwiaXNJbnRlcm5hbCI6ZmFsc2UsImlzcyI6Imh0dHBzOi8vYXBpLmFzdHJvbm9tZXIuaW8iLCJraWQiOiJjbG9kNGhranowMmtwMDFqM3Vjam8ycDhyIiwicGVybWlzc2lvbnMiOlsiYXBpVG9rZW5JZDpjbTNtcnBwenoxNzR6MDFxNzV1OWZxaHJoIiwid29ya3NwYWNlSWQ6Y20zZWJ2aDgxMWgxbTAxZ3JoN24xdjg2eSIsIm9yZ2FuaXphdGlvbklkOmNtMW9qbmlmNTE0Z3UwMXExaDZnaTRtN2UiLCJvcmdTaG9ydE5hbWU6Y20xb2puaWY1MTRndTAxcTFoNmdpNG03ZSJdLCJzY29wZSI6ImFwaVRva2VuSWQ6Y20zbXJwcHp6MTc0ejAxcTc1dTlmcWhyaCB3b3Jrc3BhY2VJZDpjbTNlYnZoODExaDFtMDFncmg3bjF2ODZ5IG9yZ2FuaXphdGlvbklkOmNtMW9qbmlmNTE0Z3UwMXExaDZnaTRtN2Ugb3JnU2hvcnROYW1lOmNtMW9qbmlmNTE0Z3UwMXExaDZnaTRtN2UiLCJzdWIiOiJjbTFnNW1jZjcxYXliMDFtMHJvMG5xMm5nIiwidmVyc2lvbiI6ImNtM21ycHB6ejE3NHkwMXE3a3puMjR0cHoifQ.ZcmmPgFKKsEJVkGZX-96GGJypolE0BBSgHRyN4zWya72vnw_2oukJKdFM2s9aLi7afAaQImVubmlK2mqgQOs3n2oZxi3xGJKsVUm3Dp61Ska3rw60fXiyd7zJ9N9HxEhpKvCzfscz-iG4TrnvirxhzWFhMZg12Auakps4b_s6pK88s277UWirogn_ptP2n8fUklysRNH6q6CQ8bKP1AMNNb3-BJ8bkc663ZtSP7qMr_UcYsrCTSXGFB2U_pVLIZXvVZsQYMNnQNZxtDfK5Gtr_9Vy_2G9ViAXmWXDKa6jjt6A0IOIsk2Byz6dke-znMTxWjkX6aOegS91X7GcpN32w"
   DEPLOYMENT_ID: "cm3mr96cq17pc01o6nchsxk3m"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to Astro
-      uses: astronomer/deploy-action@v0.4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: edps-portal-snowflake-terraformcontrol-actions
+          role-to-assume: arn:aws:iam::254067739513:role/edps-snowflake-infrastructure-github-actions-assume-role
+          role-session-name: service-portal-dbtcloud
+          aws-region: eu-west-1
+
+      - name: Read secrets from AWS Secrets Manager into environment variables
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: >
+            DBT_CLOUD_TOKEN
+
+      - name: Deploy to Astro
+        uses: astronomer/deploy-action@v0.4
+        env:
+          ASTRO_API_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+          DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
