@@ -21,13 +21,13 @@ env:
 
 jobs:
   assume-role:
-    name: Assume Role 🗒️
+    name: Assume Role
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials new 
+      - name: Configure AWS Credentials new
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::254067739513:role/edps-snowflake-infrastructure-github-actions-assume-role
@@ -35,10 +35,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Read secrets from AWS Secrets Manager into environment variables
+        id: read-secrets
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
-          secret-ids: >
-            DBT_CLOUD_TOKEN
+          secret-ids: DBT_CLOUD_TOKEN
 
   build:
     name: Build and Deploy
@@ -48,5 +48,5 @@ jobs:
       - name: Deploy to Astro
         uses: astronomer/deploy-action@v0.4
         env:
-          ASTRO_API_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+          ASTRO_API_TOKEN: ${{ steps.read-secrets.outputs.DBT_CLOUD_TOKEN }}
           DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
