@@ -22,8 +22,7 @@ env:
 jobs:
   assume-role:
     name: Assume Role 🗒️
-    runs-on: 
-        group: elsevier-standard-runners
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
