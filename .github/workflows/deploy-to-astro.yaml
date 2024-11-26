@@ -10,6 +10,9 @@ on:
   push:
     branches:
       - main
+permissions:
+  id-token: write
+  contents: read
 
 env:
   DEPLOYMENT_ID: "cm3mr96cq17pc01o6nchsxk3m"
